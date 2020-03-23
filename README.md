@@ -1,4 +1,6 @@
-## Use Podcast Commuter to help you pick a podcast based on your length of commute.
+## Podcast Commuter
+
+Use Podcast Commuter to help you pick a podcast based on your length of commute.
 
 React | APIs | HTML | SCSS | Mob Programming
 
