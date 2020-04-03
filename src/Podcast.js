@@ -8,8 +8,6 @@ class Podcast extends Component {
     constructor() {
         super();
 
-        // userInput - keyword for podcast
-        // podData - pushing details into array
         this.state = {
             selectedPodcast: [],
             podDescriptionSecond: '',
@@ -18,13 +16,16 @@ class Podcast extends Component {
 
     selectedPodcast = (e) => {
         const selectedTitle = e.target.value
+        // Setting podcast.podUrl to the URL of the selected title
         const selectedPodcastData = this.props.podData.filter((podcast) => {
             return podcast.podUrl === selectedTitle;
         })
+        // Set state with all podcast data defined in App.js
         this.setState({
             selectedPodcast: selectedPodcastData[0],
         })
 
+        // Scroll to "Have a listen"
         setTimeout(() => {
             scroller.scrollTo('finalPodcast', {
                 offset: 150,
@@ -102,7 +103,7 @@ class Podcast extends Component {
                                         <a href={this.state.selectedPodcast.podUrl} target="_blank" rel="noopener noreferrer" className="readMore">Read More</a>
                                 </div>
                             </div>
-                            <div class="audioDiv">
+                            <div className="audioDiv">
                             <audio 
                                 className="finalPodcastAudio"
                                 controls
@@ -112,7 +113,7 @@ class Podcast extends Component {
                         </div>
                     </div>
                     <a href="#header" className="refreshButton">
-                        <i class="fas fa-arrow-up"></i>
+                        <i className="fas fa-arrow-up"></i>
                         <label className="visuallyHidden">Back to top</label>
                     </a>
                 </section>

@@ -4,7 +4,6 @@ import axios from 'axios';
 import Map from './Map.js'
 import Podcast from './Podcast';
 import { scroller } from 'react-scroll';
-import Preloader from './Preloader';
 import swal from 'sweetalert';
 
 
@@ -13,48 +12,66 @@ import swal from 'sweetalert';
 
 class App extends Component {
   constructor(props){
+
     super(props);
+
     this.state = {
+      // podcast type search field
       userInput: '',
+      // commute time in minutes based off users selected mode of transportation
       appTime: 0,
+      // starting address
       fromStreet: '',
+      // starting city
       fromCity:'',
+      // starting province
       fromProvince: '',
+      // destination address
       toStreet: '',
+      // destination city
       toCity: '',
+      // destination province
       toProvince: '',
+      // entire string of starting address
       from: '',
+      // entire string of destination
       to: '',
+      // sets podcast type search field to empty after submit
       userEntry: '',
+      // holds podcast results
       podData: [],
+      // preloader
       isLoading: false,
       isLoadingPodcast: false,
       menuOpen: false,
     }
+
   }
 
-
   // Function to grab commute time from Map.js
-  // Function is called in Map.js
+  // Function runs when user selects their transportation method (walk or bike)
   grabCommuteTime = (time, callback) => {
     this.setState({
       appTime: time,
     }, callback)
   }
 
+  // Function runs when user selects their transportation method, and podcasts are loading
   grabLoading = () => {
     this.setState({
       isLoadingPodcast: true,
     })
   }
 
+  // Function runs when user submits form
   grabMapUrl = () => {
     this.setState({
       isLoading: false,
     })
   }
 
-    routeSelected = () => {
+  // When user selects (walk or bike), run Podcast API call
+  routeSelected = () => {
     axios({
       url: `https://listen-api.listennotes.com/api/v2/search`,
       method: `GET`,
@@ -69,7 +86,9 @@ class App extends Component {
         len_max: this.state.appTime + 5,
       }
     }).then((response) => {
-      // creating new array with stuff from listenNotes API call
+      // Creating new array with data from listenNotes API call
+
+      // If there are no results, alert the user
       if (response.data.count === 0){
         swal({
           title: "Oops!",
@@ -78,7 +97,9 @@ class App extends Component {
         }).then((click) => {
           this.scrollToTop();
         });
-      }else{
+
+      // If there are results, setState with response data that the application needs
+      } else {
         const newState = [];
         response.data.results.map(function (podcast) {
           newState.push({
@@ -91,6 +112,7 @@ class App extends Component {
             podAudio: podcast.audio,
 
           })
+          // Returns all data in each podcast response
           return podcast;
         })
 
@@ -102,15 +124,16 @@ class App extends Component {
       }
     })
   }
-  
 
-  // onChange function
+  // onChange function, captures every key stroke in input fields related to Map
   handleMapChange = (e) => {
     this.setState({
+      // Dynamically set state by capturing the name attribute in target JSX element
       [e.target.name]: e.target.value
     })
   }
 
+  // onChange function, captures every key stroke in input fields related to Podcast
   handlePodcastChange = (e) => {
     this.setState({
       userEntry: e.target.value,
@@ -118,10 +141,13 @@ class App extends Component {
     })
   }
 
+  // Handles submit button
   handleSubmit = (e) => {
     e.preventDefault();
+    // Captures starting address and destination, and compiles them into a string
     const from = `${this.state.fromStreet.trim()}, ${this.state.fromCity.trim()}, ${this.state.fromProvince}`
     const to = `${this.state.toStreet.trim()}, ${this.state.toCity.trim()}, ${this.state.toProvince}`
+
     this.setState({
       from: from,
       to: to,
@@ -130,6 +156,7 @@ class App extends Component {
       userEntry: '',
     })
 
+    // Scroll to "Pick a mode of transportation" section
     setTimeout(() => {
       scroller.scrollTo('mapResults', { 
         offset: 150,
@@ -139,6 +166,7 @@ class App extends Component {
     }, 500);
   }
 
+// Scrolls to form from "Start" button
   scrollToForm = () => {
     scroller.scrollTo('formInfo', {
       smooth: true,
@@ -146,6 +174,7 @@ class App extends Component {
     });
   }
 
+  // Scrolls to top of page from fixed arrow
   scrollToTop = () => {
     scroller.scrollTo('header', {
       smooth: true,
@@ -160,9 +189,9 @@ class App extends Component {
         <header>
           <nav className="wrapper" id="header">
             <img className="logo" alt="Logo for Podcast Commuter"src={require('./assets/logo.png')}></img>
-              <label for="toggle" class="hamburger"><span class="sr-only">Navigation menu</span><i class="fa fa-bars"></i></label>
-              <label for="toggle" class="close"><span class="sr-only">Close menu</span><i class="fas fa-times"></i></label>
-              <input type="checkbox" id="toggle" name="toggle" class="inputButton" />
+              <label htmlFor="toggle" className="hamburger"><span className="sr-only">Navigation menu</span><i className="fa fa-bars"></i></label>
+              <label htmlFor="toggle" className="close"><span className="sr-only">Close menu</span><i className="fas fa-times"></i></label>
+              <input type="checkbox" id="toggle" name="toggle" className="inputButton" />
               <ul className="mainNav">
                 <li className="menu"><a href="#formInfo">Search</a></li>
                 <li className="menu"><a href="#mapResults">Results</a></li>
@@ -249,18 +278,18 @@ class App extends Component {
         {/* {this.state.isLoading ? <Preloader /> : null} */}
         
         <Map 
-        grabCommuteTime={this.grabCommuteTime} 
-        grabMapUrl={this.grabMapUrl}
-        from={this.state.from} 
-        to={this.state.to}
-        routeSelected={this.routeSelected}
-        isLoadingPodcast={this.state.isLoadingPodcast}
-        grabLoading = {this.grabLoading}
+          grabCommuteTime={this.grabCommuteTime} 
+          grabMapUrl={this.grabMapUrl}
+          from={this.state.from} 
+          to={this.state.to}
+          routeSelected={this.routeSelected}
+          isLoadingPodcast={this.state.isLoadingPodcast}
+          grabLoading = {this.grabLoading}
         />
         <Podcast 
-        time={this.state.appTime} 
-        userInput={this.state.userInput}
-        podData={this.state.podData}
+          time={this.state.appTime} 
+          userInput={this.state.userInput}
+          podData={this.state.podData}
         />
 
         <footer>

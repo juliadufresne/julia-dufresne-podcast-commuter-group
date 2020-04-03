@@ -8,24 +8,29 @@ import swal from 'sweetalert';
 // Functionality involving MapQuest API
 class Map extends Component {
     constructor() {
+
         super()
-        // routeType takes strings of pedestrian or bike 
-        // routeResult is an object that holds two objects (bicycle and pedestrian results)
         this.state = {
+            // routeType takes strings of pedestrian or bike 
             routeType: '',
+            // routeResult is an object that holds two objects (bicycle and pedestrian results)
             routeResult: {},
+            // commuteTime is the length of commute in minutes
             commuteTime: 0,
         }
     }
 
+
     componentDidUpdate(prevProps, prevState){
-        if(prevProps.from !== this.props.from || prevProps.to !== this.props.to){
+        // prevProps is an empty string initally, and this.props is populated with users input, so this conditional will run
+        if(prevProps.from !== this.props.from || prevProps.to !== this.props.to) {
 
             if (this.props.from !== '' && this.props.to !== '') {
                 const routeType = ['pedestrian', 'bicycle']
-    
-                //mapping over the routeType and do axios calls 
+
+                // Mapping over the routeType and do axios calls 
                 let flag = false
+                // parameter (type) holds bicycle or pedestrian options
                 const promises = routeType.map((type) => {
                     return axios({
                         url: 'https://www.mapquestapi.com/directions/v2/route',
@@ -40,8 +45,9 @@ class Map extends Component {
                         flag=true
                     })
                 })
-                //catch the axios calls and put them in to the response array
+                // Catch the axios calls and put them in to the response array
                 Promise.all(promises).then((responseArray) => {
+                    // Error handling, if user inputs a starting point and destination that do not give any commute results, an error will occur
                     if (flag === true) {
                         swal({
                             title: "Oops!",
@@ -51,30 +57,30 @@ class Map extends Component {
                             this.scrollToTop();
                         });
                     }
-                    if(flag===false){
-                        //get time from the axios call
-                        //taking the first element in the response array (pedestrain for now) and add the next one to create an object
+
+                    // Get commute time from the axios call
+                    // Taking the first element in the response array and add the next one to create an object
+                    if (flag === false){
                         const transformedResponse = responseArray.reduce((acc, response, i) => {
                             const userRouteTime = response.data.route.legs[0].formattedTime;
                             const hour = userRouteTime.slice(0, 2);
                             const minutes = userRouteTime.slice(3, 5);
                             const mapImage = `https://www.mapquestapi.com/staticmap/v5/map?key=GjfNgstNA6zUKUgGcbkAzOwhHGvwyPRl&size=600,250@2x&defaultMarker=marker-sm-81003c-81003c&routeColor=ff7600&margin=60&type=map&start=${this.props.from}&end=${this.props.to}`
-        
-                            //separating bike and pedestrain so that they are their own object
+                            // Separating bike and pedestrain so that they are their own object
                             return {
                                 ...acc,
-                                //once they are in their own object, add key value pairs to each object
+                                // Once they are in their own object, add key value pairs to each object
                                 [routeType[i]]: {
                                     travelHour: hour,
                                     travelMinute: minutes,
                                     mapImage: mapImage,
                                 }
                             }
-                            // reduce syntax 
                         }, {})
 
-                
                         if (Number(transformedResponse['bicycle']['travelHour'] + transformedResponse['bicycle']['travelMinute'] === 0) && Number(transformedResponse['pedestrian']['travelHour'] + transformedResponse['pedestrian']['travelHour'] === 0)){
+                        
+                            // Error handling if the commute time is 0
                             swal({
                                 title: "Oops!",
                                 text: "Invalid location, please try again!",
@@ -82,16 +88,14 @@ class Map extends Component {
                             }).then((click) => {
                                 this.scrollToTop();
                             });
-                        }else{
-                            // assigning objects to route result
+                        } else {
+                            // Assigning objects to route result
                             this.setState({
                                 routeResult: transformedResponse,
                             }, () => {
                                 const {
                                     grabMapUrl,
-
                                 } = this.props;
-                           
                                 grabMapUrl()
                             })
                         }        
@@ -103,11 +107,11 @@ class Map extends Component {
 
     // If user chooses bike
     chooseBike = () => {
-        // selecting value from routeResult state
-        // "time" is holding travel time in minutes
+        // Selecting value from routeResult state
+        // (time) is holding travel time in minutes
         const time = Number(this.state.routeResult['bicycle']['travelHour']) * 60 + Number(this.state.routeResult['bicycle']['travelMinute'])
 
-        // Setting commuteTime to "time"
+        // Setting commuteTime to (time)
         // Referring to grabCommuteTime function in App.js, and assigning it to be a prop
         // Call grabCommuteTime function with value of "time"
         this.setState({
@@ -123,6 +127,7 @@ class Map extends Component {
             grabLoading();
         })
 
+        // Scroll feature to scroll to "Pick a podcast"
         setTimeout(() => {
             scroller.scrollTo('podcastResults', {
                 offset: 150,
@@ -148,6 +153,7 @@ class Map extends Component {
             grabLoading();
         })
 
+        // Scroll feature to scroll to "Pick a podcast"
         setTimeout(() => {
             scroller.scrollTo('podcastResults', {
                 offset: 150,
