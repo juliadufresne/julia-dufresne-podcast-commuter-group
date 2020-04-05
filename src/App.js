@@ -9,7 +9,6 @@ import swal from 'sweetalert';
 
 
 // App holds all components and elements vital to structure of the page
-
 class App extends Component {
   constructor(props){
 
